@@ -69,8 +69,9 @@ def select_individuals(pops, set_probs):
             num.append(i)
     return selected, num
 
-def selection(pops, pointer):
+def selection(pops):
     #----RWS----
+    num_of_pointer = cf.get_numofpointer()
     fps = []
     selected = []
     total = 0
@@ -80,44 +81,52 @@ def selection(pops, pointer):
         if not fps: fps.append(score)
         else: fps.append(score+fps[i-1])
     print("fps: ", fps)
-    for p in range(pointer):
-        n = rand.random()
-        select = 0
-        while n > fps[select]:
-            select += 1
+    for p in range(num_of_pointer):
+        pointer = rand.random()
+        n = 0
+        while pointer >= fps[n]:
+            n += 1
         # for i, score in enumerate(fps):
         #     if n < score: select = i
-        selected.append(pops[select])
-        print("n: ", n, " ----> ", select)
+        selected.append(pops[n])
+        print("pointer: ", ponter, " ----> ", n)
         print(selected[p].get_fitness())
     return selected
 
 def crossover(pops):
     offspring = []
-    '''
-        proses crossover
-    '''
-    return pops
-
-def mutation(pops, nums):
-    for num in nums:
-        allel = pops[num].get_allel()
-        '''
-        proses mutasi
-        '''
-        pops[num].set_allel(mutated)
-        pops[num].set_fitness(fx.fitness(mutated))
+    pointer = []
+    parent1 = []
+    parent2 = []
+    for k in range(cf.get_kcross()):
+        r = 1
+        while r not in pointer:
+            r = rand.randint(0, cf.get_dimension()-1)
+        pointer.append(r)
+    pointer = sorted(pointer, reverse=False)
+    for i in range(int(len(pops)/2)):
+        parent1 = pops[(2*i)].get_allel()
+        parent2 = pops[(2*i)+1].get_allel()
+        for j in range(len(pointer)-1):
+            temp = parent1[pointer[2*j]:pointer[2*j+1]].copy()
+            parent1[pointer[2*j]:pointer[2*j+1]] = parent2[pointer[j]:pointer[j+1]].copy()
+            parent2[pointer[2*j]:pointer[2*j+1]] = temp.copy()
+        offspring[(2*i)].set_allel(parent1)
+        offspring[(2*i)].set_fitness(fx.fitness(parent1))
+        offspring[(2*i)+1].set_allel(parent2)
+        offspring[(2*i)+1].set_fitness(fx.fitness(parent2))
     return pops
 
 def replacement(old, new, size=cf.get_popsize()):
-    # new_gen = []
-    #all = gabung old dan new
-    new_gen = sorted(all, reverse=True, key=lambda ID: ID.get_fitness())
-    return new_gen[:size]
+    new.extend(old)
+    new = sorted(all, reverse=True, key=lambda ID: ID.get_fitness())
+    return new[:size]
 
 def abandon_egg(pops):
     for i in range(cf.get_popsize()):
         p = np.random.rand()
         if p < cf.get_Pa():
-            pops[i] = new_cuckoo(pops[i])
+            allel, fitness = pops[i].new_egg(pops[i])
+            pops[i].set_allel(allel)
+            pops[i].set_fitness(fitness)
     return pops
