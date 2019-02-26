@@ -22,7 +22,7 @@ def main():
         print("===============GEN ", t, "================")
         #================crossover==========================
         select_from_pc, num = idv.select_individuals(pops, cf.get_Pc())
-        selection = idv.selection(select_from_pc, cf.get_pointer())
+        selection = idv.selection(select_from_pc)
         new_pops = idv.crossover(selection)
 
         #=======================mutation====================
@@ -41,6 +41,9 @@ def main():
                 new_pops[r].set_fitness(fitness)
 
         new_pops = sorted(new_pops, reverse=True, key=lambda ID: ID.get_fitness())
+        
+        #abandoned egg get replaced
+        new_pops = idv.abandon_egg(new_pops)
         
         #=============generational replacement==============
         pops = idv.replacement(new_pops)
