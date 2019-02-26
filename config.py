@@ -15,7 +15,7 @@ class Config:
     #=========GA==========
     __Pc = 0.8
     __Pm = 0.1
-    __Pointer = 4
+    __Num_of_pointer = 4
     __K_mutation = 6
     __K_crossover = 6
 
@@ -49,8 +49,8 @@ class Config:
         return self.__Maxgen
     
     @classmethod
-    def get_pointer(self):
-        return self.__Pointer
+    def get_numofpointer(self):
+        return self.__Num_of_pointer
 
     @classmethod
     def get_kmut(self):
