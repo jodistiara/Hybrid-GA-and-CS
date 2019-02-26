@@ -1,10 +1,6 @@
 class Config:
+    #===========chromosomes n pops=============
     __Popsize = 10
-    __Lambda = 1.5
-    __Pa = 0.2
-    __Pc = 0.8
-    __Pm = 0.1
-    __Alpha = 0.01
     __Maxgen = 10
     __NumOfCourse = 5
     __NumOfClass = 10
@@ -12,7 +8,17 @@ class Config:
     # __MaxAllel = __NumOfClass * __NumOfTimeslots
     __MaxAllel = 100
     __MinAllel = 1
+    #=======cuckoo=========
+    __Lambda = 1.5
+    __Alpha = 0.01
+    __Pa = 0.2
+    #=========GA==========
+    __Pc = 0.8
+    __Pm = 0.1
     __Pointer = 4
+    __K_mutation = 6
+    __K_crossover = 6
+
 
     @classmethod
     def get_popsize(self):
@@ -45,6 +51,14 @@ class Config:
     @classmethod
     def get_pointer(self):
         return self.__Pointer
+
+    @classmethod
+    def get_kmut(self):
+        return self.__K_mutation
+
+    @classmethod
+    def get_kcross(self):
+        return self.__K_crossover
 
     @classmethod
     def get_dimension(self):
