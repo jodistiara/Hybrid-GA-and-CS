@@ -23,20 +23,25 @@ class Individu:
         self.__allel = array
     
     #================cuckoo===============
-    #abandon nest <-- abandon allel and replace with new 1, or egg??
-    def abandon_variable(egg):
-        # abandon some variables
-        for i in range(len(egg)):
-            p = np.random.rand()
-            if p < cf.get_Pa():
-                egg[i] = np.random.randint(cf.get_maxallel() + 1)
-        return egg
-
     #get cuckoo
-    def new_egg(egg):
+    def new_egg(self):
+        new_allel = []
         step_size = cf.get_alpha * levy_flight(cf.get_lambda)
-        egg = egg + step_size
-        return egg
+        new_allel = self.__allel + step_size
+        new_fitness = fx.fitness(new_allel)
+
+        return new_allel, new_fitness
+
+        #add boundary rules here
+
+    #=================GA====================
+    def mutate(self):
+        k = cf.get_kmut()
+        select = []
+        for i in range(k): select.append(rand.randint(0, cf.get_dimension()-1))
+        for i in select: 
+            self.__allel[i] = rand.randint(1, cf.get_maxallel())
+        self.__fitness = fx.fitness(self.__allel)
 
 
 #*levy flight -- coba cek the coding training, 
@@ -89,7 +94,10 @@ def selection(pops, pointer):
 
 def crossover(pops):
     offspring = []
-    return offspring
+    '''
+        proses crossover
+    '''
+    return pops
 
 def mutation(pops, nums):
     for num in nums:
