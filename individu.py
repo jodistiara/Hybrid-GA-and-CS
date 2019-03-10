@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Feb 26 21:40:00 2019
+
+@author: cdjodistiara
+"""
+
 import numpy as np
 import math
 from config import Config as cf
@@ -26,8 +34,8 @@ class Individu:
     #get cuckoo
     def new_egg(self):
         new_allel = []
-        step_size = cf.get_alpha * levy_flight(cf.get_lambda)
-        new_allel = self.__allel + step_size
+        step_size = cf.get_alpha() * levy_flight(cf.get_lambda())
+        new_allel = (self.__allel + step_size).astype(int)
         new_fitness = fx.fitness(new_allel)
 
         return new_allel, new_fitness
@@ -62,6 +70,7 @@ def select_individuals(pops, set_probs):
     selected = []
     num = []
     probs = np.random.uniform(size=len(pops))
+    print('probabilities:')
     for i, prob in enumerate(probs):
         print(i, ": ", prob)
         if prob < set_probs:
@@ -89,8 +98,7 @@ def selection(pops):
         # for i, score in enumerate(fps):
         #     if n < score: select = i
         selected.append(pops[n])
-        print("pointer: ", ponter, " ----> ", n)
-        print(selected[p].get_fitness())
+        print("pointer: ", pointer, " ----> ", n)
     return selected
 
 def crossover(pops):
@@ -98,35 +106,53 @@ def crossover(pops):
     pointer = []
     parent1 = []
     parent2 = []
+    
     for k in range(cf.get_kcross()):
-        r = 1
-        while r not in pointer:
+        r = rand.randint(0, cf.get_dimension()-1)
+        while r in pointer:
             r = rand.randint(0, cf.get_dimension()-1)
         pointer.append(r)
     pointer = sorted(pointer, reverse=False)
-    for i in range(int(len(pops)/2)):
-        parent1 = pops[(2*i)].get_allel()
-        parent2 = pops[(2*i)+1].get_allel()
-        for j in range(len(pointer)-1):
+    print('pointer: ', pointer)
+    
+    #k even
+    if len(pops) >= 2: 
+        if len(pops) == 2: n = 1
+        else: n = len(pops)
+        for i in range(n*2): offspring.append(Individu())
+    else: 
+        n = 0
+        offspring = [pops.copy()]
+        
+    for i in range(n):
+        if i == len(pops)-1:
+            parent1 = pops[i].get_allel().copy()
+            parent2 = pops[0].get_allel().copy()
+        else: 
+            parent1 = pops[i].get_allel().copy()
+            parent2 = pops[i+1].get_allel().copy()
+            
+        for j in range(len(pointer)//2):
             temp = parent1[pointer[2*j]:pointer[2*j+1]].copy()
-            parent1[pointer[2*j]:pointer[2*j+1]] = parent2[pointer[j]:pointer[j+1]].copy()
+            parent1[pointer[2*j]:pointer[2*j+1]] = parent2[pointer[2*j]:pointer[2*j+1]].copy()
             parent2[pointer[2*j]:pointer[2*j+1]] = temp.copy()
-        offspring[(2*i)].set_allel(parent1)
-        offspring[(2*i)].set_fitness(fx.fitness(parent1))
-        offspring[(2*i)+1].set_allel(parent2)
-        offspring[(2*i)+1].set_fitness(fx.fitness(parent2))
-    return pops
+        offspring[2*i].set_allel(parent1)
+        offspring[2*i].set_fitness(fx.fitness(parent1))
+        offspring[2*i+1].set_allel(parent2)
+        offspring[2*i+1].set_fitness(fx.fitness(parent2))
+        print("offspring created from: ", 2*i, " ", 2*i+1)
+    return offspring
 
 def replacement(old, new, size=cf.get_popsize()):
     new.extend(old)
-    new = sorted(all, reverse=True, key=lambda ID: ID.get_fitness())
+    new = sorted(new, reverse=True, key=lambda ID: ID.get_fitness())
     return new[:size]
 
 def abandon_egg(pops):
-    for i in range(cf.get_popsize()):
+    for i in range(len(pops)):
         p = np.random.rand()
         if p < cf.get_Pa():
-            allel, fitness = pops[i].new_egg(pops[i])
+            allel, fitness = pops[i].new_egg()
             pops[i].set_allel(allel)
             pops[i].set_fitness(fitness)
     return pops
