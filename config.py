@@ -1,8 +1,16 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Feb 26 15:09:13 2019
+
+@author: cdjodistiara
+"""
+
 class Config:
     #===========chromosomes n pops=============
     __Popsize = 10
-    __Maxgen = 10
-    __NumOfCourse = 5
+    __Maxgen = 5
+    __NumOfCourse = 15
     __NumOfClass = 10
     __NumOfTimeslots = 2
     # __MaxAllel = __NumOfClass * __NumOfTimeslots
@@ -16,8 +24,8 @@ class Config:
     __Pc = 0.8
     __Pm = 0.1
     __Num_of_pointer = 4
-    __K_mutation = 6
-    __K_crossover = 6
+    __K_mutation = 2
+    __K_crossover = 4
 
 
     @classmethod
