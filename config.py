@@ -81,6 +81,6 @@ class Config:
     def set_maxallel(self, max):
         self.__MaxAllel = max
         
-     @classmethod
-     def set_dimension(self, dimension):
-         self.__Dimension = dimension
+    @classmethod
+    def set_dimension(self, dimension):
+        self.__Dimension = dimension
