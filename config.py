@@ -10,9 +10,7 @@ class Config:
     #===========chromosomes n pops=============
     __Popsize = 10
     __Maxgen = 5
-    __NumOfCourse = 15
-    __NumOfClass = 10
-    __NumOfTimeslots = 2
+    __Dimension = 15
     # __MaxAllel = __NumOfClass * __NumOfTimeslots
     __MaxAllel = 100
     __MinAllel = 1
@@ -70,11 +68,7 @@ class Config:
 
     @classmethod
     def get_dimension(self):
-        return self.__NumOfCourse
-
-    # @classmethod
-    # def set_dimension(self, _dimension):
-    #     self.__NumOfCourse = _dimension
+        return self.__Dimension
 
     @classmethod
     def get_maxallel(self):
@@ -83,3 +77,10 @@ class Config:
     @classmethod
     def get_minallel(self):
         return self.__MinAllel
+    
+    def set_maxallel(self, max):
+        self.__MaxAllel = max
+        
+     @classmethod
+     def set_dimension(self, dimension):
+         self.__Dimension = dimension
