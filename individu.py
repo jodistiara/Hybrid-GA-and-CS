@@ -15,7 +15,7 @@ import random as rand
 # initial population
 class Individu:
     def __init__(self):
-        self.__allel = np.random.randint(cf.get_maxgen(), size=cf.get_dimension()) + 1
+        self.__allel = np.random.randint(cf.get_maxallel(), size=cf.get_dimension()) + 1
         self.__fitness = fx.fitness(self.__allel)
     
     def get_fitness(self):
