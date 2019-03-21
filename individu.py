@@ -9,14 +9,14 @@ Created on Tue Feb 26 21:40:00 2019
 import numpy as np
 import math
 from config import Config as cf
-import functions as fx
+from fitness import fitness
 import random as rand
 
 # initial population
 class Individu:
     def __init__(self):
-        self.__allel = np.random.randint(cf.get_maxallel(), size=cf.get_dimension()) + 1
-        self.__fitness = fx.fitness(self.__allel)
+        self.__allel = np.random.randint(cf.get_maxallel(), size=cf.get_dimension())
+        self.__fitness = fitness(self.__allel)
     
     def get_fitness(self):
         return self.__fitness
@@ -36,7 +36,7 @@ class Individu:
         new_allel = []
         step_size = cf.get_alpha() * levy_flight(cf.get_lambda())
         new_allel = (self.__allel + step_size).astype(int)
-        new_fitness = fx.fitness(new_allel)
+        new_fitness = fitness(new_allel)
 
         return new_allel, new_fitness
 
@@ -46,10 +46,10 @@ class Individu:
     def mutate(self):
         k = cf.get_kmut()
         select = []
-        for i in range(k): select.append(rand.randint(0, cf.get_dimension()-1))
+        for i in range(k): select.append(rand.randint(0, cf.get_dimension()))
         for i in select: 
-            self.__allel[i] = rand.randint(1, cf.get_maxallel())
-        self.__fitness = fx.fitness(self.__allel)
+            self.__allel[i] = rand.randint(0, cf.get_maxallel())
+        self.__fitness = fitness(self.__allel)
 
 
 #*levy flight -- coba cek the coding training, 
@@ -70,9 +70,9 @@ def select_individuals(pops, set_probs):
     selected = []
     num = []
     probs = np.random.uniform(size=len(pops))
-    print('probabilities:')
+#    print('probabilities:')
     for i, prob in enumerate(probs):
-        print(i, ": ", prob)
+#        print(i, ": ", prob)
         if prob < set_probs:
             selected.append(pops[i])
             num.append(i)
@@ -89,7 +89,7 @@ def selection(pops):
         score = pops[i].get_fitness() / total
         if not fps: fps.append(score)
         else: fps.append(score+fps[i-1])
-    print("fps: ", fps)
+#    print("fps: ", fps)
     for p in range(num_of_pointer):
         pointer = rand.random()
         n = 0
@@ -98,7 +98,7 @@ def selection(pops):
         # for i, score in enumerate(fps):
         #     if n < score: select = i
         selected.append(pops[n])
-        print("pointer: ", pointer, " ----> ", n)
+#        print("pointer: ", pointer, " ----> ", n)
     return selected
 
 def crossover(pops):
@@ -113,9 +113,8 @@ def crossover(pops):
             r = rand.randint(0, cf.get_dimension()-1)
         pointer.append(r)
     pointer = sorted(pointer, reverse=False)
-    print('pointer: ', pointer)
+#    print('pointer: ', pointer)
     
-    #k even
     if len(pops) >= 2: 
         if len(pops) == 2: n = 1
         else: n = len(pops)
@@ -137,10 +136,10 @@ def crossover(pops):
             parent1[pointer[2*j]:pointer[2*j+1]] = parent2[pointer[2*j]:pointer[2*j+1]].copy()
             parent2[pointer[2*j]:pointer[2*j+1]] = temp.copy()
         offspring[2*i].set_allel(parent1)
-        offspring[2*i].set_fitness(fx.fitness(parent1))
+        offspring[2*i].set_fitness(fitness(parent1))
         offspring[2*i+1].set_allel(parent2)
-        offspring[2*i+1].set_fitness(fx.fitness(parent2))
-        print("offspring created from: ", 2*i, " ", 2*i+1)
+        offspring[2*i+1].set_fitness(fitness(parent2))
+#        print("offspring created from: ", 2*i, " ", 2*i+1)
     return offspring
 
 def replacement(old, new, size=cf.get_popsize()):
