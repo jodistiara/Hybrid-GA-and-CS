@@ -46,9 +46,9 @@ class Individu:
     def mutate(self):
         k = cf.get_kmut()
         select = []
-        for i in range(k): select.append(rand.randint(0, cf.get_dimension()))
+        for i in range(k): select.append(rand.randint(0, cf.get_dimension()-1))
         for i in select: 
-            self.__allel[i] = rand.randint(0, cf.get_maxallel())
+            self.__allel[i] = rand.randint(0, cf.get_maxallel()-1)
         self.__fitness = fitness(self.__allel)
 
 
