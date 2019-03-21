@@ -5,15 +5,16 @@ Created on Tue Feb 26 15:09:13 2019
 
 @author: cdjodistiara
 """
+from fitness import jml_timeslot, jml_matkul
 
 class Config:
     #===========chromosomes n pops=============
     __Popsize = 10
     __Maxgen = 5
-    __Dimension = 15
+    __Dimension = jml_matkul
     # __MaxAllel = __NumOfClass * __NumOfTimeslots
-    __MaxAllel = 100
-    __MinAllel = 1
+    __MaxAllel = jml_timeslot
+    __MinAllel = 0
     #=======cuckoo=========
     __Lambda = 1.5
     __Alpha = 0.01
@@ -29,6 +30,10 @@ class Config:
     @classmethod
     def get_popsize(self):
         return self.__Popsize
+    
+    @classmethod
+    def set_popsize(self, popsize):
+        self.__Popsize = popsize
 
     @classmethod
     def get_Pa(self):
@@ -55,6 +60,10 @@ class Config:
         return self.__Maxgen
     
     @classmethod
+    def set_maxgen(self, gen):
+        self.__Maxgen = gen
+    
+    @classmethod
     def get_numofpointer(self):
         return self.__Num_of_pointer
 
@@ -77,10 +86,3 @@ class Config:
     @classmethod
     def get_minallel(self):
         return self.__MinAllel
-    
-    def set_maxallel(self, max):
-        self.__MaxAllel = max
-        
-    @classmethod
-    def set_dimension(self, dimension):
-        self.__Dimension = dimension
