@@ -10,30 +10,24 @@ from fitness import jml_timeslot, jml_matkul
 class Config:
     #===========chromosomes n pops=============
     __Popsize = 10
-    __Maxgen = 5
+    __Maxgen = 300
     __Dimension = jml_matkul
-    # __MaxAllel = __NumOfClass * __NumOfTimeslots
     __MaxAllel = jml_timeslot
     __MinAllel = 0
     #=======cuckoo=========
     __Lambda = 1.5
-    __Alpha = 0.01
-    __Pa = 0.2
+    __Alpha = 0.1
+    __Pa = 0.1
     #=========GA==========
     __Pc = 0.8
     __Pm = 0.1
-    __Num_of_pointer = 4
-    __K_mutation = 2
-    __K_crossover = 4
+    __K_crossover = 10
+    __K_mutation = 10
 
 
     @classmethod
     def get_popsize(self):
         return self.__Popsize
-    
-    @classmethod
-    def set_popsize(self, popsize):
-        self.__Popsize = popsize
 
     @classmethod
     def get_Pa(self):
@@ -58,14 +52,6 @@ class Config:
     @classmethod
     def get_maxgen(self):
         return self.__Maxgen
-    
-    @classmethod
-    def set_maxgen(self, gen):
-        self.__Maxgen = gen
-    
-    @classmethod
-    def get_numofpointer(self):
-        return self.__Num_of_pointer
 
     @classmethod
     def get_kmut(self):
