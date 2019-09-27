@@ -7,7 +7,7 @@ Created on Tue Feb 26 21:40:00 2019
 """
 
 import numpy as np
-import math
+from math import gamma
 from config import Config as cf
 from fitness import fitness
 import random as rand
@@ -15,7 +15,8 @@ import random as rand
 # initial population
 class Individu:
     def __init__(self):
-        self.__allel = np.random.randint(cf.get_maxallel(), size=cf.get_dimension())
+        self.__allel = np.random.randint(cf.get_maxallel(), \
+                                         size=cf.get_dimension())
         self.__fitness = 0
     
     def get_fitness(self):
@@ -24,34 +25,32 @@ class Individu:
     def get_allel(self):
         return self.__allel
 
-    def set_fitness(self, value):
-        self.__fitness = value
+    def set_fitness(self, value=0):
+        if value == 0: self.__fitness = fitness(self.__allel)
+        else: self.__fitness = value
 
     def set_allel(self, array):
         self.__allel = array
     
-    #================cuckoo===============
-    #get cuckoo
-    def new_egg(self):
+    def new_egg(self, best, change=True):        # get cuckoo
         new_allel = []
-        step_size = cf.get_alpha() * levy_flight(cf.get_lambda())
+        step_size = np.multiply(best-self.__allel, levy_flight())
         new_allel = (self.__allel + step_size).astype(int)
-    
-        #boundary rules
-        for i, allel in enumerate(new_allel):
-            if allel >= cf.get_maxallel():
-                new_allel[i] = allel % cf.get_maxallel()
+        new_allel = np.remainder(new_allel, cf.get_maxallel())
         
         new_fitness = fitness(new_allel)
-
-        return new_allel, new_fitness
+        if change:
+            self.__allel = new_allel
+            self.__fitness = new_fitness
+        else: return new_allel, new_fitness
 
 #*levy flight -- coba cek the coding training, 
-def levy_flight(Lambda):
+def levy_flight(Lambda=cf.get_lambda()):
     #generate step from levy distribution
     size = cf.get_dimension()
-    sigma1 = np.power((math.gamma(1 + Lambda) * np.sin((np.pi * Lambda) / 2)) \
-                      / math.gamma((1 + Lambda) / 2) * np.power(2, (Lambda - 1) / 2), 1 / Lambda)
+    sigma1 = np.power((gamma(1 + Lambda) * np.sin((np.pi * Lambda) / 2)) \
+                      / gamma((1 + Lambda) / 2) * Lambda * \
+                      np.power(2, (Lambda - 1) / 2), 1 / Lambda)
     sigma2 = 1
     u = np.random.normal(0, sigma1, size=size)
     v = np.random.normal(0, sigma2, size=size)
@@ -60,20 +59,19 @@ def levy_flight(Lambda):
     return step
 
 def selection(pops):    #----RWS----
-    num_of_pointer = int(cf.get_Pc()*len(pops))
+    num_of_parents = int(cf.get_Pc()*len(pops))
     fps = []
     selected = []
     total = 0
-    for i in range(len(pops)):total += pops[i].get_fitness()
+    for i in range(len(pops)):total += (150000 - pops[i].get_fitness())
     for i in range(len(pops)):
-        score = pops[i].get_fitness() / total
+        score = (150000 - pops[i].get_fitness()) / total
         if not fps: fps.append(score)
         else: fps.append(score+fps[i-1])
-    for p in range(num_of_pointer):
+    for p in range(num_of_parents):
         pointer = rand.random()
         n = 0
-        while pointer >= fps[n]:
-            n += 1
+        while pointer >= fps[n]: n += 1
         selected.append(pops[n])
     return selected
 
@@ -83,12 +81,13 @@ def crossover(pops):
     parent1 = []
     parent2 = []
     
-    for k in range(cf.get_kcross()):
+    for k in range(cf.get_kcross()):                    # choose pointer
         r = rand.randint(0, cf.get_dimension()-1)
         while r in pointer:
             r = rand.randint(0, cf.get_dimension()-1)
         pointer.append(r)
-    pointer = sorted(pointer, reverse=False)
+    if cf.get_kcross()%2 != 0: pointer.append(cf.get_dimension())
+    pointer = sorted(pointer)
     
     if len(pops) >= 2: 
         if len(pops) == 2: n = 1
@@ -105,53 +104,72 @@ def crossover(pops):
         else: 
             parent1 = pops[i].get_allel().copy()
             parent2 = pops[i+1].get_allel().copy()
-            
+        
         for j in range(len(pointer)//2):
             temp = parent1[pointer[2*j]:pointer[2*j+1]].copy()
-            parent1[pointer[2*j]:pointer[2*j+1]] = parent2[pointer[2*j]:pointer[2*j+1]].copy()
+            parent1[pointer[2*j]:pointer[2*j+1]] = parent2[pointer[2*j]:
+                                                   pointer[2*j+1]].copy()
             parent2[pointer[2*j]:pointer[2*j+1]] = temp.copy()
         offspring[2*i].set_allel(parent1.copy())
-        offspring[2*i].set_fitness(fitness(parent1))
+        offspring[2*i].set_fitness()
         offspring[2*i+1].set_allel(parent2.copy())
-        offspring[2*i+1].set_fitness(fitness(parent2))
+        offspring[2*i+1].set_fitness()
     return offspring
 
 def mutation(pops):
-    num_of_gen = len(pops)*cf.get_dimension()
-    num_of_mutated_gen = int(cf.get_Pm()*num_of_gen)
+    numOfGen = len(pops)*cf.get_dimension()
+    numOfMutatedGen = int(cf.get_Pm()*numOfGen)
     select = []
     copy_pops = []
-    num_of_pops = len(pops)
+    numOfPops = len(pops)
     
-    if num_of_mutated_gen > 0:
-        #copy all offspring's chromosome & select random gen
-        for i in range(num_of_gen):
-            if i < num_of_pops: copy_pops.append(pops[i].get_allel().copy())
-            select.append(rand.randint(0,(num_of_mutated_gen-1)))
+    if numOfMutatedGen > 0:
+        #copy all offspring's chromosome
+        for i in range(numOfPops):
+            copy_pops.append(pops[i].get_allel().copy())
         
-        #select gen to be mutated
-        for k in select:
-            x = k//cf.get_dimension()
-            y = k%cf.get_dimension()
+        for i in range(numOfMutatedGen):
+            select = rand.randint(0,(numOfGen-1))   # select gen
+            x = select//cf.get_dimension()
+            y = select%cf.get_dimension()
             copy_pops[x][y] = rand.randint(0,(cf.get_maxallel()-1))
         
         #set back to original individu object
-        for i in range(num_of_pops):
+        for i in range(numOfPops):
             pops[i].set_allel(copy_pops[i].copy())
-            pops[i].set_fitness(fitness(copy_pops[i].copy()))
-        
-    return pops        
+            pops[i].set_fitness()
+    return pops          
 
-def replacement(old, new, size=cf.get_popsize()):
-    new.extend(old)
-    new = sorted(new, reverse=True, key=lambda ID: ID.get_fitness())
-    return new[:size]
+def replacement(old, new, algo):
+    if algo != 'cs':
+        new.extend(old)
+    new = sorted(new, reverse=False, key=lambda ID: ID.get_fitness())
+    return new[:cf.get_popsize()]
+
+def find_best(pops):
+    found = 0
+    for i in range(len(pops)):
+        if pops[i].get_fitness() <= pops[found].get_fitness(): 
+            found = i
+    return found
+
+def replace_egg(pops):
+    best_egg = find_best(pops)
+    
+    r = rand.randint(0, len(pops)-1)               # select random egg
+    while (r == best_egg):
+        r = rand.randint(0, len(pops)-1)
+    best = pops[best_egg].get_allel()
+    new_egg, value = pops[r].new_egg(best, False)  # create new egg
+    
+    if value <= pops[r].get_fitness():    # replace if new egg
+        pops[r].set_allel(new_egg)        # is better
+        pops[r].set_fitness(value)
+    return pops
 
 def abandon_egg(pops):
-    for i in range(len(pops)):
-        p = np.random.rand()
-        if p < cf.get_Pa():
-            allel, fitness = pops[i].new_egg()
-            pops[i].set_allel(allel)
-            pops[i].set_fitness(fitness)
+    pops = sorted(pops, reverse=False, key=lambda ID: ID.get_fitness())
+    best = pops[0].get_allel()
+    for i in range(int(cf.get_Pa() * len(pops))):
+        pops[len(pops)-1-i].new_egg(best)
     return pops
